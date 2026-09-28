@@ -1,0 +1,9 @@
+# Development dependencies.
+# Installs everything from production, plus local-only tooling.
+# Use this file locally:  pip install -r requirements-dev.txt
+
+-r requirements-prod.txt
+
+# Dev-only tools (linters, formatters, debugging helpers) will be added here
+# as needed. Tests use Django/DRF's built-in test runner, so no extra library
+# is required for them.
