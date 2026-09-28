@@ -1,0 +1,23 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: pipely-db
+    # Dev credentials come from backend/.env; the :- defaults keep
+    # `docker compose up` working out of the box.
+    environment:
+      POSTGRES_DB: ${DB_NAME:-pipely}
+      POSTGRES_USER: ${DB_USER:-pipely}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-pipely}
+    ports:
+      # Host 5435 -> container 5432 (5432/5433/5434 are used by other projects).
+      - "5435:5432"
+    volumes:
+      - pipely_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-pipely} -d ${DB_NAME:-pipely}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pipely_pgdata:
