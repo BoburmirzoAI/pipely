@@ -1,7 +1,7 @@
 """Root URL configuration for the Pipely project."""
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularSwaggerView,
@@ -9,7 +9,8 @@ from drf_spectacular.views import (
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # API endpoints (auth, leads) are wired up in later phases.
+    # API endpoints
+    path("api/auth/", include("apps.users.urls")),
     # OpenAPI schema + Swagger UI:
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
