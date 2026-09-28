@@ -1,3 +1,6 @@
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema, inline_serializer
+from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -12,6 +15,16 @@ class LeadCheckDuplicateView(APIView):
     the user is still typing), and never 400s on partial input.
     """
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter("email", OpenApiTypes.STR),
+            OpenApiParameter("phone", OpenApiTypes.STR),
+        ],
+        responses=inline_serializer(
+            "DuplicateCheck",
+            {"duplicate": serializers.JSONField(allow_null=True)},
+        ),
+    )
     def get(self, request):
         email = request.GET.get("email", "").strip()
         phone = normalize_phone(request.GET.get("phone", ""))

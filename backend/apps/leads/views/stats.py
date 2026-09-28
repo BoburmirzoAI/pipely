@@ -1,5 +1,7 @@
 from django.db.models import Count
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema, inline_serializer
+from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -9,6 +11,17 @@ from apps.leads.models import Lead, LeadStatus
 class LeadStatsView(APIView):
     """GET /api/leads/stats/ — dashboard numbers for the current user."""
 
+    @extend_schema(
+        responses=inline_serializer(
+            "LeadStats",
+            {
+                "total": serializers.IntegerField(),
+                "by_status": serializers.JSONField(),
+                "conversion_rate": serializers.FloatField(allow_null=True),
+                "follow_ups": serializers.JSONField(),
+            },
+        )
+    )
     def get(self, request):
         qs = Lead.objects.filter(owner=request.user)
 

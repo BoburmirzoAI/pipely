@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -11,6 +12,7 @@ class LeadStatusView(APIView):
     """PATCH /api/leads/{id}/status/ — a distinct business action with its own
     activity type; keeps the general update endpoint simple."""
 
+    @extend_schema(request=LeadStatusSerializer, responses={200: LeadSerializer})
     def patch(self, request, pk):
         lead = get_owned_lead(request, pk)
         serializer = LeadStatusSerializer(data=request.data)

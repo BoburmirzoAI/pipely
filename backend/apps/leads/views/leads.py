@@ -1,4 +1,6 @@
 from django.db.models import Q
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status as http_status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -22,10 +24,21 @@ ORDERING_FIELDS = {
     "-next_follow_up_at",
 }
 
+LIST_PARAMS = [
+    OpenApiParameter("search", OpenApiTypes.STR, description="Match on name, email, phone"),
+    OpenApiParameter("status", OpenApiTypes.STR, many=True, description="Filter by status (repeatable)"),
+    OpenApiParameter("source", OpenApiTypes.STR, description="Filter by source"),
+    OpenApiParameter("follow_up", OpenApiTypes.STR, enum=["overdue", "today", "upcoming", "none"]),
+    OpenApiParameter("ordering", OpenApiTypes.STR, enum=sorted(ORDERING_FIELDS)),
+    OpenApiParameter("page", OpenApiTypes.INT),
+    OpenApiParameter("page_size", OpenApiTypes.INT, description="Max 100"),
+]
+
 
 class LeadListCreateView(APIView):
     """GET /api/leads/ (list, filtered + paginated) and POST /api/leads/ (create)."""
 
+    @extend_schema(parameters=LIST_PARAMS, responses={200: LeadSerializer(many=True)})
     def get(self, request):
         qs = Lead.objects.filter(owner=request.user)
         qs = LeadFilter(request.GET, queryset=qs, request=request).qs
@@ -46,6 +59,7 @@ class LeadListCreateView(APIView):
         data = LeadSerializer(page, many=True).data
         return paginator.get_paginated_response(data)
 
+    @extend_schema(request=LeadWriteSerializer, responses={201: LeadSerializer})
     def post(self, request):
         serializer = LeadWriteSerializer(
             data=request.data, context={"request": request}
@@ -60,10 +74,12 @@ class LeadListCreateView(APIView):
 class LeadDetailView(APIView):
     """GET / PATCH / DELETE on /api/leads/{id}/ (status is a separate endpoint)."""
 
+    @extend_schema(responses={200: LeadSerializer})
     def get(self, request, pk):
         lead = get_owned_lead(request, pk)
         return Response(LeadSerializer(lead).data)
 
+    @extend_schema(request=LeadWriteSerializer, responses={200: LeadSerializer})
     def patch(self, request, pk):
         lead = get_owned_lead(request, pk)
         serializer = LeadWriteSerializer(
@@ -76,6 +92,7 @@ class LeadDetailView(APIView):
         lead = services.update_lead(lead, request.user, serializer.validated_data)
         return Response(LeadSerializer(lead).data)
 
+    @extend_schema(responses={204: None})
     def delete(self, request, pk):
         lead = get_owned_lead(request, pk)
         lead.delete()
