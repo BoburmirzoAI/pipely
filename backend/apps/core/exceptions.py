@@ -12,10 +12,26 @@ Every error response looks like:
 """
 
 from django.conf import settings
+from django.http import Http404
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_exception_handler
+
+
+class DuplicateLead(APIException):
+    """409 raised when a lead with the same email/phone already exists (per owner)."""
+
+    status_code = status.HTTP_409_CONFLICT
+    default_code = "duplicate_lead"
+
+    def __init__(self, field, existing_lead):
+        # Keep raw values on the exception so the handler can emit a numeric id
+        # (DRF would stringify anything passed through `detail`).
+        self.field = field
+        self.existing_lead = {"id": existing_lead.id, "name": existing_lead.name}
+        self.default_detail = f"A lead with this {field} already exists."
+        super().__init__(detail=self.default_detail)
 
 
 def custom_exception_handler(exc, context):
@@ -37,7 +53,16 @@ def custom_exception_handler(exc, context):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-    if isinstance(exc, ValidationError):
+    if isinstance(exc, DuplicateLead):
+        code = exc.default_code
+        message = str(exc.default_detail)
+        details = {"field": exc.field, "existing_lead": exc.existing_lead}
+    elif isinstance(exc, Http404):
+        # Don't leak which model/query missed (ownership 404s stay opaque).
+        code = "not_found"
+        message = "Not found."
+        details = {}
+    elif isinstance(exc, ValidationError):
         code = "validation_error"
         message = "Invalid input."
         details = response.data  # { field: [messages] }

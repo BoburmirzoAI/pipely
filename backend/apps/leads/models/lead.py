@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.db.models.functions import Lower
+from django.utils import timezone
 
 from apps.core.models import TimeStampedModel
 
@@ -71,3 +72,20 @@ class Lead(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+    @property
+    def is_overdue(self) -> bool:
+        """Follow-up is in the past and the lead is still open."""
+        if not self.next_follow_up_at or self.status in {
+            LeadStatus.WON,
+            LeadStatus.LOST,
+        }:
+            return False
+        return self.next_follow_up_at < timezone.now()
+
+    @property
+    def is_due_today(self) -> bool:
+        """Follow-up falls on today's date (server timezone)."""
+        if not self.next_follow_up_at:
+            return False
+        return timezone.localtime(self.next_follow_up_at).date() == timezone.localdate()
