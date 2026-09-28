@@ -1,0 +1,43 @@
+# ---- Python / Django ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.Python
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Django
+*.log
+*.sqlite3
+media/
+staticfiles/
+
+# ---- Environment / secrets ----
+.env
+*.env
+!.env.example
+
+# ---- Node / frontend ----
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# ---- Editors / OS ----
+.vscode/
+.idea/
+.DS_Store
+
+# ---- Internal working notes (keep local; only published docs are tracked) ----
+*.md
+!README.md
+!ARCHITECTURE.md
+!AI_USAGE.md
+
+# ---- Misc project files (kept out of source control) ----
+Design decisions pending.zip
