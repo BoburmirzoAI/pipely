@@ -8,7 +8,7 @@ User = get_user_model()
 class AuthTests(APITestCase):
     def test_register_then_login_returns_tokens(self):
         resp = self.client.post(
-            "/api/auth/register/",
+            "/api/v1/auth/register/",
             {"username": "ali", "email": "ali@example.com", "password": "StrongPass123!"},
             format="json",
         )
@@ -17,7 +17,7 @@ class AuthTests(APITestCase):
         self.assertNotIn("password", resp.data)
 
         resp = self.client.post(
-            "/api/auth/login/",
+            "/api/v1/auth/login/",
             {"username": "ali", "password": "StrongPass123!"},
             format="json",
         )
@@ -27,7 +27,7 @@ class AuthTests(APITestCase):
 
     def test_register_weak_password_returns_400(self):
         resp = self.client.post(
-            "/api/auth/register/",
+            "/api/v1/auth/register/",
             {"username": "weak", "email": "weak@example.com", "password": "123"},
             format="json",
         )
@@ -35,7 +35,7 @@ class AuthTests(APITestCase):
         self.assertEqual(resp.data["error"]["code"], "validation_error")
 
     def test_me_requires_authentication(self):
-        resp = self.client.get("/api/auth/me/")
+        resp = self.client.get("/api/v1/auth/me/")
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_me_returns_current_user(self):
@@ -43,11 +43,11 @@ class AuthTests(APITestCase):
             username="ali", email="ali@example.com", password="StrongPass123!"
         )
         login = self.client.post(
-            "/api/auth/login/",
+            "/api/v1/auth/login/",
             {"username": "ali", "password": "StrongPass123!"},
             format="json",
         )
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {login.data['access']}")
-        resp = self.client.get("/api/auth/me/")
+        resp = self.client.get("/api/v1/auth/me/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data["email"], "ali@example.com")

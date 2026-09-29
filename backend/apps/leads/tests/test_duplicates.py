@@ -9,7 +9,7 @@ class LeadDuplicateTests(LeadAPITestCase):
     def test_duplicate_phone_different_formatting_is_409(self):
         Lead.objects.create(owner=self.owner, name="Aziz", phone="+998901234567")
         resp = self.client.post(
-            "/api/leads/",
+            "/api/v1/leads/",
             {"name": "Aziz again", "phone": "+998 90 123-45-67"},
             format="json",
         )
@@ -20,7 +20,7 @@ class LeadDuplicateTests(LeadAPITestCase):
     def test_duplicate_email_different_case_is_409(self):
         Lead.objects.create(owner=self.owner, name="Dilnoza", email="dilnoza@example.com")
         resp = self.client.post(
-            "/api/leads/",
+            "/api/v1/leads/",
             {"name": "Dup", "email": "DILNOZA@example.com"},
             format="json",
         )
@@ -31,7 +31,7 @@ class LeadDuplicateTests(LeadAPITestCase):
         other = self.make_user("other")
         Lead.objects.create(owner=other, name="Theirs", email="shared@example.com")
         resp = self.client.post(
-            "/api/leads/",
+            "/api/v1/leads/",
             {"name": "Mine", "email": "shared@example.com"},
             format="json",
         )

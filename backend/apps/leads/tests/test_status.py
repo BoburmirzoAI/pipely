@@ -12,7 +12,7 @@ class LeadStatusTests(LeadAPITestCase):
     def test_status_change_writes_activity(self):
         lead = Lead.objects.create(owner=self.owner, name="Aziz", email="a@example.com")
         resp = self.client.patch(
-            f"/api/leads/{lead.id}/status/", {"status": "contacted"}, format="json"
+            f"/api/v1/leads/{lead.id}/status/", {"status": "contacted"}, format="json"
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data["status"], "contacted")
@@ -31,7 +31,7 @@ class LeadStatusTests(LeadAPITestCase):
             owner=self.owner, name="Aziz", email="a@example.com", next_follow_up_at=future
         )
         resp = self.client.patch(
-            f"/api/leads/{lead.id}/status/", {"status": "won"}, format="json"
+            f"/api/v1/leads/{lead.id}/status/", {"status": "won"}, format="json"
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertIsNone(resp.data["next_follow_up_at"])

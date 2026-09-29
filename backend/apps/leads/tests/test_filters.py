@@ -14,17 +14,17 @@ class LeadFilterTests(LeadAPITestCase):
         Lead.objects.create(owner=self.owner, name="Bek", email="bek@example.com", status="contacted")
         Lead.objects.create(owner=self.owner, name="Dilnoza", phone="+998900000000", status="new")
 
-        resp = self.client.get("/api/leads/?search=aziz")
+        resp = self.client.get("/api/v1/leads/?search=aziz")
         self.assertEqual(resp.data["meta"]["total"], 1)
         self.assertEqual(resp.data["data"][0]["name"], "Aziz Karimov")
 
-        resp = self.client.get("/api/leads/?status=new")
+        resp = self.client.get("/api/v1/leads/?status=new")
         self.assertEqual(resp.data["meta"]["total"], 2)
 
     def test_past_follow_up_is_rejected(self):
         past = (timezone.now() - timedelta(days=1)).isoformat()
         resp = self.client.post(
-            "/api/leads/",
+            "/api/v1/leads/",
             {"name": "Aziz", "email": "a@example.com", "next_follow_up_at": past},
             format="json",
         )
@@ -50,6 +50,6 @@ class LeadFilterTests(LeadAPITestCase):
             next_follow_up_at=future, status="new",
         )
 
-        resp = self.client.get("/api/leads/?follow_up=overdue")
+        resp = self.client.get("/api/v1/leads/?follow_up=overdue")
         ids = [row["id"] for row in resp.data["data"]]
         self.assertEqual(ids, [overdue.id])

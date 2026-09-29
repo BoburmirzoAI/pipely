@@ -18,7 +18,7 @@ class LeadAPITestCase(APITestCase):
 
     def authenticate(self, user):
         resp = self.client.post(
-            "/api/auth/login/",
+            "/api/v1/auth/login/",
             {"username": user.username, "password": PASSWORD},
             format="json",
         )

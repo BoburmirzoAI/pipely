@@ -6,7 +6,7 @@ import { tokens } from "../lib/tokens";
 const BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8002";
 
 export const api = axios.create({
-  baseURL: `${BASE}/api`,
+  baseURL: `${BASE}/api/v1`,
   // Serialize arrays as repeated params (?status=new&status=contacted),
   // which is what DRF expects — not the bracketed default.
   paramsSerializer: { indexes: null },
@@ -27,7 +27,7 @@ async function refreshAccess(): Promise<string | null> {
   const refresh = tokens.refresh;
   if (!refresh) return null;
   try {
-    const resp = await axios.post(`${BASE}/api/auth/refresh/`, { refresh });
+    const resp = await axios.post(`${BASE}/api/v1/auth/refresh/`, { refresh });
     const access = resp.data.access as string;
     tokens.set(access);
     return access;
