@@ -43,7 +43,7 @@ class LeadListCreateView(APIView):
 
     @extend_schema(parameters=LIST_PARAMS, responses={200: LeadSerializer(many=True)})
     def get(self, request):
-        qs = Lead.objects.visible_to(request.user)
+        qs = Lead.objects.visible_to(request.user).select_related("owner")
         qs = LeadFilter(request.GET, queryset=qs, request=request).qs
 
         search = request.GET.get("search")
