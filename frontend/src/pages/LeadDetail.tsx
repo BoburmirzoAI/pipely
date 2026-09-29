@@ -3,9 +3,9 @@ import { type ReactNode, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { leadsApi } from "../api/leads";
-import { useAuth } from "../auth/AuthContext";
 import { Avatar } from "../components/Avatar";
 import { Icon } from "../components/Icon";
+import { AssignSelect } from "../components/leads/AssignSelect";
 import { DeleteDialog } from "../components/leads/DeleteDialog";
 import { LeadFormModal } from "../components/leads/LeadFormModal";
 import { StatusSelect } from "../components/leads/StatusSelect";
@@ -22,7 +22,6 @@ export function LeadDetail() {
   const leadId = Number(id);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
   const { has } = usePermissions();
 
   const [editing, setEditing] = useState(false);
@@ -57,6 +56,15 @@ export function LeadDetail() {
     },
   });
 
+  const assignMutation = useMutation({
+    mutationFn: (ownerId: number) => leadsApi.assign(leadId, ownerId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lead", leadId] });
+      queryClient.invalidateQueries({ queryKey: ["activities", leadId] });
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+    },
+  });
+
   if (leadQuery.isLoading) {
     return <Center>Loading…</Center>;
   }
@@ -75,10 +83,7 @@ export function LeadDetail() {
   }
 
   const lead = leadQuery.data;
-  const ownerName =
-    user && (user.first_name || user.last_name)
-      ? `${user.first_name} ${user.last_name}`.trim()
-      : user?.username ?? "—";
+  const ownerName = lead.owner.username;
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -107,6 +112,12 @@ export function LeadDetail() {
               <StatusSelect value={lead.status} onChange={(s) => statusMutation.mutate(s)} />
             ) : (
               <StatusBadge status={lead.status} />
+            )}
+            {has("leads.assign") && (
+              <AssignSelect
+                currentOwnerId={lead.owner.id}
+                onAssign={(id) => assignMutation.mutate(id)}
+              />
             )}
             {has("leads.update") && (
               <button className="btn-secondary" onClick={() => setEditing(true)}>

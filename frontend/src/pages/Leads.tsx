@@ -75,6 +75,7 @@ export function Leads() {
             ordering={ordering}
             onSort={onSort}
             onRowClick={(id) => navigate(`/leads/${id}`)}
+            showOwner={has("leads.view_all")}
           />
         )}
       </div>

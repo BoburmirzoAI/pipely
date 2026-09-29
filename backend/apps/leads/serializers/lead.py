@@ -14,6 +14,7 @@ class LeadSerializer(serializers.ModelSerializer):
     is_overdue = serializers.ReadOnlyField()
     is_due_today = serializers.ReadOnlyField()
     is_stale = serializers.ReadOnlyField()
+    owner = serializers.SerializerMethodField()
 
     class Meta:
         model = Lead
@@ -26,9 +27,13 @@ class LeadSerializer(serializers.ModelSerializer):
             "note",
             "status",
             "next_follow_up_at",
+            "owner",
             "is_overdue",
             "is_due_today",
             "is_stale",
             "created_at",
             "updated_at",
         ]
+
+    def get_owner(self, obj) -> dict:
+        return {"id": obj.owner_id, "username": obj.owner.username}

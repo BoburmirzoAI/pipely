@@ -51,6 +51,11 @@ export const leadsApi = {
   setStatus(id: number, status: LeadStatus) {
     return api.patch<Lead>(`/leads/${id}/status/`, { status }).then((r) => r.data);
   },
+  assign(id: number, ownerId: number) {
+    return api
+      .patch<Lead>(`/leads/${id}/assign/`, { owner_id: ownerId })
+      .then((r) => r.data);
+  },
   checkDuplicate(email: string, phone: string) {
     return api
       .get<DuplicateHit>("/leads/check-duplicate/", { params: { email, phone } })

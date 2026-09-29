@@ -39,11 +39,22 @@ export interface Lead {
   note: string;
   status: LeadStatus;
   next_follow_up_at: string | null;
+  owner: { id: number; username: string };
   is_overdue: boolean;
   is_due_today: boolean;
   is_stale: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface AdminUser {
+  id: number;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  is_active: boolean;
+  roles: string[];
 }
 
 export interface LeadActivity {
@@ -67,6 +78,21 @@ export interface Stats {
   conversion_rate: number | null;
   follow_ups: { overdue: number; today: number; upcoming: number };
   stale: number;
+}
+
+export interface Role {
+  id: number;
+  name: string;
+  description: string;
+  permissions: string[];
+  is_system: boolean;
+  user_count: number;
+}
+
+export interface AppPermission {
+  id: number;
+  code: string;
+  description: string;
 }
 
 export interface ApiError {
