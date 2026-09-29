@@ -3,8 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { leadsApi } from "../api/leads";
 import { useAuth } from "../auth/AuthContext";
+import { Avatar } from "../components/Avatar";
 import { Icon } from "../components/Icon";
 import { PageHeader } from "../components/PageHeader";
+import { StatusBadge } from "../components/StatusBadge";
+import { formatRelative } from "../lib/format";
 import { STATUS_META, STATUS_ORDER } from "../lib/leadMeta";
 
 function greeting() {
@@ -20,6 +23,10 @@ export function Dashboard() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ["stats"],
     queryFn: leadsApi.stats,
+  });
+  const { data: recent } = useQuery({
+    queryKey: ["recent-leads"],
+    queryFn: () => leadsApi.list({ ordering: "-created_at", page_size: 5 }),
   });
 
   const firstName = user?.first_name || user?.username || "";
@@ -96,6 +103,38 @@ export function Dashboard() {
               <StatCard label="Won" value={stats.by_status.won} dot="#22C55E" valueColor="#15803D" />
               <StatCard label="Lost" value={stats.by_status.lost} dot="#EF4444" valueColor="#B91C1C" />
               <StatCard label="Conversion rate" value={conversion} />
+            </div>
+
+            {/* Recent leads */}
+            <div className="mt-4 rounded-xl border border-line p-4">
+              <div className="mb-2 flex items-center justify-between">
+                <div className="text-[13.5px] font-semibold text-ink">Recent leads</div>
+                <Link to="/leads" className="text-[12.5px] font-medium text-brand">
+                  View all
+                </Link>
+              </div>
+              {recent && recent.data.length > 0 ? (
+                <div className="flex flex-col">
+                  {recent.data.map((lead) => (
+                    <Link
+                      key={lead.id}
+                      to={`/leads/${lead.id}`}
+                      className="flex items-center gap-3 border-b border-[#F1F1F3] py-2 last:border-0 hover:opacity-80"
+                    >
+                      <Avatar name={lead.name} />
+                      <span className="flex-1 truncate text-[13px] font-medium text-ink">
+                        {lead.name}
+                      </span>
+                      <StatusBadge status={lead.status} />
+                      <span className="w-16 flex-none text-right text-xs text-gray-400">
+                        {formatRelative(lead.created_at)}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-4 text-[13px] text-gray-400">No leads yet.</div>
+              )}
             </div>
 
             {/* Leads by status */}
