@@ -55,3 +55,11 @@ DB_PASSWORD = env_str("DB_PASSWORD", "pipely")
 DB_HOST = env_str("DB_HOST", "localhost")
 DB_PORT = env_str("DB_PORT", "5435")
 DB_SSLMODE = env_str("DB_SSLMODE", "prefer")
+
+# --- CORS --------------------------------------------------------------------
+
+# Origins allowed to call the API (the frontend dev server by default).
+CORS_ALLOWED_ORIGINS = env_list(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173",
+)

@@ -20,6 +20,9 @@ SECRET_KEY = config.SECRET_KEY
 DEBUG = config.DEBUG
 ALLOWED_HOSTS = config.ALLOWED_HOSTS
 
+# Cross-origin requests from the frontend.
+CORS_ALLOWED_ORIGINS = config.CORS_ALLOWED_ORIGINS
+
 
 # --- Applications ----------------------------------------------------------
 
@@ -36,6 +39,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "django_filters",
     "drf_spectacular",
+    "corsheaders",
 ]
 
 LOCAL_APPS = [
@@ -51,6 +55,7 @@ AUTH_USER_MODEL = "users.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
