@@ -20,6 +20,8 @@ ORDERING_FIELDS = {
     "-name",
     "status",
     "-status",
+    "updated_at",
+    "-updated_at",
     "next_follow_up_at",
     "-next_follow_up_at",
 }
@@ -29,6 +31,7 @@ LIST_PARAMS = [
     OpenApiParameter("status", OpenApiTypes.STR, many=True, description="Filter by status (repeatable)"),
     OpenApiParameter("source", OpenApiTypes.STR, description="Filter by source"),
     OpenApiParameter("follow_up", OpenApiTypes.STR, enum=["overdue", "today", "upcoming", "none"]),
+    OpenApiParameter("stale", OpenApiTypes.BOOL, description="Only stale (true) or non-stale (false) leads"),
     OpenApiParameter("ordering", OpenApiTypes.STR, enum=sorted(ORDERING_FIELDS)),
     OpenApiParameter("page", OpenApiTypes.INT),
     OpenApiParameter("page_size", OpenApiTypes.INT, description="Max 100"),

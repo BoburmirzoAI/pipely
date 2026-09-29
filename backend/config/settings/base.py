@@ -23,6 +23,9 @@ ALLOWED_HOSTS = config.ALLOWED_HOSTS
 # Cross-origin requests from the frontend.
 CORS_ALLOWED_ORIGINS = config.CORS_ALLOWED_ORIGINS
 
+# Days without an update before an open lead is considered stale.
+STALE_LEAD_DAYS = config.STALE_LEAD_DAYS
+
 
 # --- Applications ----------------------------------------------------------
 

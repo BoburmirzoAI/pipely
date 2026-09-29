@@ -14,10 +14,18 @@ class LeadFilter(django_filters.FilterSet):
     status = django_filters.MultipleChoiceFilter(choices=LeadStatus.choices)
     source = django_filters.ChoiceFilter(choices=LeadSource.choices)
     follow_up = django_filters.CharFilter(method="filter_follow_up")
+    stale = django_filters.BooleanFilter(method="filter_stale")
 
     class Meta:
         model = Lead
         fields = ["status", "source"]
+
+    def filter_stale(self, queryset, name, value):
+        if value is True:
+            return queryset.stale()
+        if value is False:
+            return queryset.exclude(pk__in=queryset.stale().values("pk"))
+        return queryset
 
     def filter_follow_up(self, queryset, name, value):
         # Delegate to the LeadQuerySet so the rules live in exactly one place.

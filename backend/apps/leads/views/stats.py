@@ -18,6 +18,7 @@ class LeadStatsView(APIView):
                 "by_status": serializers.JSONField(),
                 "conversion_rate": serializers.FloatField(allow_null=True),
                 "follow_ups": serializers.JSONField(),
+                "stale": serializers.IntegerField(),
             },
         )
     )
@@ -44,5 +45,6 @@ class LeadStatsView(APIView):
                 "by_status": by_status,
                 "conversion_rate": conversion_rate,
                 "follow_ups": follow_ups,
+                "stale": qs.stale().count(),
             }
         )

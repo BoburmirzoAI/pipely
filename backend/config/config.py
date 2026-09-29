@@ -41,6 +41,13 @@ def env_list(name: str, default: str = "") -> list[str]:
     return [item.strip() for item in raw.split(",") if item.strip()]
 
 
+def env_int(name: str, default: int) -> int:
+    try:
+        return int(os.getenv(name, default))
+    except (TypeError, ValueError):
+        return default
+
+
 # --- Django core -----------------------------------------------------------
 
 SECRET_KEY = env_str("SECRET_KEY", "unsafe-dev-key-change-me")
@@ -55,6 +62,12 @@ DB_PASSWORD = env_str("DB_PASSWORD", "pipely")
 DB_HOST = env_str("DB_HOST", "localhost")
 DB_PORT = env_str("DB_PORT", "5435")
 DB_SSLMODE = env_str("DB_SSLMODE", "prefer")
+
+# --- Business rules ----------------------------------------------------------
+
+# A lead is "stale" after this many days without any update (and with no
+# future follow-up). Computed at query time; nothing stored.
+STALE_LEAD_DAYS = env_int("STALE_LEAD_DAYS", 7)
 
 # --- CORS --------------------------------------------------------------------
 

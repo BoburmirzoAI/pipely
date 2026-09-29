@@ -13,6 +13,7 @@ class LeadSerializer(serializers.ModelSerializer):
 
     is_overdue = serializers.ReadOnlyField()
     is_due_today = serializers.ReadOnlyField()
+    is_stale = serializers.ReadOnlyField()
 
     class Meta:
         model = Lead
@@ -27,6 +28,7 @@ class LeadSerializer(serializers.ModelSerializer):
             "next_follow_up_at",
             "is_overdue",
             "is_due_today",
+            "is_stale",
             "created_at",
             "updated_at",
         ]
