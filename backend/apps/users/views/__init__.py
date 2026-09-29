@@ -1,3 +1,3 @@
-from .auth import MeView, RegisterView
+from .auth import LoginView, MeView, RegisterView
 
-__all__ = ["MeView", "RegisterView"]
+__all__ = ["LoginView", "MeView", "RegisterView"]

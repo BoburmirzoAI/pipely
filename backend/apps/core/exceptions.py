@@ -14,7 +14,7 @@ Every error response looks like:
 from django.conf import settings
 from django.http import Http404
 from rest_framework import status
-from rest_framework.exceptions import APIException, ValidationError
+from rest_framework.exceptions import APIException, Throttled, ValidationError
 from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_exception_handler
 
@@ -61,6 +61,10 @@ def custom_exception_handler(exc, context):
         # Don't leak which model/query missed (ownership 404s stay opaque).
         code = "not_found"
         message = "Not found."
+        details = {}
+    elif isinstance(exc, Throttled):
+        code = "rate_limited"
+        message = "Too many requests. Please try again later."
         details = {}
     elif isinstance(exc, ValidationError):
         code = "validation_error"

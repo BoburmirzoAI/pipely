@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from rest_framework.test import APITestCase
 
 User = get_user_model()
@@ -10,6 +11,7 @@ class LeadAPITestCase(APITestCase):
     """Base case with a primary owner already authenticated."""
 
     def setUp(self):
+        cache.clear()  # reset throttle counters between tests
         self.owner = User.objects.create_user("owner", "owner@example.com", PASSWORD)
         self.authenticate(self.owner)
 
