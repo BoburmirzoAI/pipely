@@ -37,5 +37,14 @@ services:
       db:
         condition: service_healthy
 
+  frontend:
+    build: ./frontend
+    container_name: pipely-frontend
+    ports:
+      # Host 5173 -> nginx :80 serving the built SPA.
+      - "5173:80"
+    depends_on:
+      - backend
+
 volumes:
   pipely_pgdata:
