@@ -15,6 +15,8 @@ class LeadCheckDuplicateView(APIView):
     the user is still typing), and never 400s on partial input.
     """
 
+    required_permissions = {"GET": "leads.create"}
+
     @extend_schema(
         parameters=[
             OpenApiParameter("email", OpenApiTypes.STR),

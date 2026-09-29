@@ -10,6 +10,8 @@ from .base import get_owned_lead
 class LeadActivitiesView(APIView):
     """GET /api/leads/{id}/activities/ — the lead's activity timeline."""
 
+    required_permissions = {"GET": "leads.view"}
+
     @extend_schema(responses={200: LeadActivitySerializer(many=True)})
     def get(self, request, pk):
         lead = get_owned_lead(request, pk)

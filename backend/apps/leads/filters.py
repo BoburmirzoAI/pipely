@@ -13,6 +13,7 @@ class LeadFilter(django_filters.FilterSet):
 
     status = django_filters.MultipleChoiceFilter(choices=LeadStatus.choices)
     source = django_filters.ChoiceFilter(choices=LeadSource.choices)
+    owner = django_filters.NumberFilter(field_name="owner_id")
     follow_up = django_filters.CharFilter(method="filter_follow_up")
     stale = django_filters.BooleanFilter(method="filter_stale")
 

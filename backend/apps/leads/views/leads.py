@@ -30,6 +30,7 @@ LIST_PARAMS = [
     OpenApiParameter("search", OpenApiTypes.STR, description="Match on name, email, phone"),
     OpenApiParameter("status", OpenApiTypes.STR, many=True, description="Filter by status (repeatable)"),
     OpenApiParameter("source", OpenApiTypes.STR, description="Filter by source"),
+    OpenApiParameter("owner", OpenApiTypes.INT, description="Filter by owner id (needs leads.view_all)"),
     OpenApiParameter("follow_up", OpenApiTypes.STR, enum=["overdue", "today", "upcoming", "none"]),
     OpenApiParameter("stale", OpenApiTypes.BOOL, description="Only stale (true) or non-stale (false) leads"),
     OpenApiParameter("ordering", OpenApiTypes.STR, enum=sorted(ORDERING_FIELDS)),
@@ -40,6 +41,8 @@ LIST_PARAMS = [
 
 class LeadListCreateView(APIView):
     """GET /api/leads/ (list, filtered + paginated) and POST /api/leads/ (create)."""
+
+    required_permissions = {"GET": "leads.view", "POST": "leads.create"}
 
     @extend_schema(parameters=LIST_PARAMS, responses={200: LeadSerializer(many=True)})
     def get(self, request):
@@ -76,6 +79,12 @@ class LeadListCreateView(APIView):
 
 class LeadDetailView(APIView):
     """GET / PATCH / DELETE on /api/leads/{id}/ (status is a separate endpoint)."""
+
+    required_permissions = {
+        "GET": "leads.view",
+        "PATCH": "leads.update",
+        "DELETE": "leads.delete",
+    }
 
     @extend_schema(responses={200: LeadSerializer})
     def get(self, request, pk):

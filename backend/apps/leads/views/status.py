@@ -12,6 +12,8 @@ class LeadStatusView(APIView):
     """PATCH /api/leads/{id}/status/ — a distinct business action with its own
     activity type; keeps the general update endpoint simple."""
 
+    required_permissions = {"PATCH": "leads.update_status"}
+
     @extend_schema(request=LeadStatusSerializer, responses={200: LeadSerializer})
     def patch(self, request, pk):
         lead = get_owned_lead(request, pk)

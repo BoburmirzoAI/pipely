@@ -50,7 +50,9 @@ class LeadQuerySet(models.QuerySet):
         )
 
     def visible_to(self, user):
-        """Data scope. Phase B: owner-only; extended with leads.view_all in Phase C."""
+        """Data scope: all leads with leads.view_all, otherwise only own."""
+        if "leads.view_all" in user.get_permission_codes():
+            return self
         return self.filter(owner=user)
 
 

@@ -10,6 +10,8 @@ from apps.leads.models import Lead, LeadStatus
 class LeadStatsView(APIView):
     """GET /api/leads/stats/ — dashboard numbers for the current user."""
 
+    required_permissions = {"GET": "stats.view"}
+
     @extend_schema(
         responses=inline_serializer(
             "LeadStats",
