@@ -6,6 +6,7 @@ import { leadsApi } from "../api/leads";
 import { Icon } from "../components/Icon";
 import { PageHeader } from "../components/PageHeader";
 import { LeadFormModal } from "../components/leads/LeadFormModal";
+import { LeadsBoard } from "../components/leads/LeadsBoard";
 import { LeadsTable } from "../components/leads/LeadsTable";
 import { LeadsToolbar } from "../components/leads/LeadsToolbar";
 import { Pagination } from "../components/leads/Pagination";
@@ -51,7 +52,7 @@ export function Leads() {
 
       <div className="flex-1 overflow-auto">
         {view === "board" ? (
-          <Centered>Board view — coming next.</Centered>
+          <LeadsBoard params={params} onCard={(id) => navigate(`/leads/${id}`)} />
         ) : query.isLoading ? (
           <Centered>Loading leads…</Centered>
         ) : query.isError ? (
@@ -72,7 +73,7 @@ export function Leads() {
         )}
       </div>
 
-      {query.data && query.data.data.length > 0 && (
+      {view === "table" && query.data && query.data.data.length > 0 && (
         <Pagination
           page={query.data.meta.page}
           pageSize={query.data.meta.page_size}
