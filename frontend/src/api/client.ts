@@ -5,7 +5,12 @@ import { tokens } from "../lib/tokens";
 
 const BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8002";
 
-export const api = axios.create({ baseURL: `${BASE}/api` });
+export const api = axios.create({
+  baseURL: `${BASE}/api`,
+  // Serialize arrays as repeated params (?status=new&status=contacted),
+  // which is what DRF expects — not the bracketed default.
+  paramsSerializer: { indexes: null },
+});
 
 // Attach the access token to every request.
 api.interceptors.request.use((config) => {
