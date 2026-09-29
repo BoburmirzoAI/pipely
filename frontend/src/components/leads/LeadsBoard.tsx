@@ -8,6 +8,7 @@ import { SOURCE_META, STATUS_META, STATUS_ORDER } from "../../lib/leadMeta";
 import type { Lead, LeadStatus } from "../../lib/types";
 import { Avatar } from "../Avatar";
 import { Icon } from "../Icon";
+import { StaleBadge } from "./StaleBadge";
 
 export function LeadsBoard({
   params,
@@ -111,6 +112,7 @@ function BoardCard({ lead, onClick }: { lead: Lead; onClick: () => void }) {
         <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-ink">
           {lead.name}
         </span>
+        {lead.is_stale && <StaleBadge />}
       </div>
       {contact && (
         <div className="truncate text-xs text-gray-500">{contact}</div>

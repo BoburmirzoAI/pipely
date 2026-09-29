@@ -16,6 +16,8 @@ export interface LeadListParams {
   status?: LeadStatus[];
   source?: LeadSource;
   follow_up?: "overdue" | "today" | "upcoming" | "none";
+  stale?: boolean;
+  owner?: number;
   ordering?: string;
 }
 

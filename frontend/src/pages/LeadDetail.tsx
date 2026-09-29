@@ -9,6 +9,8 @@ import { Icon } from "../components/Icon";
 import { DeleteDialog } from "../components/leads/DeleteDialog";
 import { LeadFormModal } from "../components/leads/LeadFormModal";
 import { StatusSelect } from "../components/leads/StatusSelect";
+import { usePermissions } from "../hooks/usePermissions";
+import { StatusBadge } from "../components/StatusBadge";
 import { describeActivity } from "../lib/activity";
 import { apiError } from "../lib/errors";
 import { formatDateTime, formatRelative } from "../lib/format";
@@ -21,6 +23,7 @@ export function LeadDetail() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const { has } = usePermissions();
 
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -100,20 +103,38 @@ export function LeadDetail() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <StatusSelect value={lead.status} onChange={(s) => statusMutation.mutate(s)} />
-            <button className="btn-secondary" onClick={() => setEditing(true)}>
-              <Icon name="pencil" size={14} />
-              Edit
-            </button>
-            <button
-              onClick={() => setDeleting(true)}
-              className="inline-flex items-center gap-1.5 rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-[#B91C1C] hover:border-[#FCA5A5] hover:bg-[#FEF2F2]"
-            >
-              <Icon name="trash" size={14} />
-              Delete
-            </button>
+            {has("leads.update_status") ? (
+              <StatusSelect value={lead.status} onChange={(s) => statusMutation.mutate(s)} />
+            ) : (
+              <StatusBadge status={lead.status} />
+            )}
+            {has("leads.update") && (
+              <button className="btn-secondary" onClick={() => setEditing(true)}>
+                <Icon name="pencil" size={14} />
+                Edit
+              </button>
+            )}
+            {has("leads.delete") && (
+              <button
+                onClick={() => setDeleting(true)}
+                className="inline-flex items-center gap-1.5 rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-[#B91C1C] hover:border-[#FCA5A5] hover:bg-[#FEF2F2]"
+              >
+                <Icon name="trash" size={14} />
+                Delete
+              </button>
+            )}
           </div>
         </div>
+
+        {lead.is_stale && (
+          <div className="mt-5 flex items-center gap-2 rounded-lg bg-[#F3F4F6] px-4 py-2.5 text-[13px] text-gray-600">
+            <Icon name="alert" size={15} stroke="#6B7280" />
+            No activity for {Math.floor(
+              (Date.now() - new Date(lead.updated_at).getTime()) / 86400000,
+            )}{" "}
+            days — set a follow-up or update the status.
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-10 pt-6 lg:grid-cols-2">
           {/* Details */}

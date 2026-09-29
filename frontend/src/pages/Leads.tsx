@@ -11,6 +11,7 @@ import { LeadsTable } from "../components/leads/LeadsTable";
 import { LeadsToolbar } from "../components/leads/LeadsToolbar";
 import { Pagination } from "../components/leads/Pagination";
 import { useLeadParams } from "../hooks/useLeadParams";
+import { usePermissions } from "../hooks/usePermissions";
 import { apiError } from "../lib/errors";
 
 type View = "table" | "board";
@@ -20,6 +21,8 @@ export function Leads() {
   const navigate = useNavigate();
   const [view, setView] = useState<View>("table");
   const [creating, setCreating] = useState(false);
+  const { has } = usePermissions();
+  const canCreate = has("leads.create");
 
   const query = useQuery({
     queryKey: ["leads", params],
@@ -42,10 +45,12 @@ export function Leads() {
         icon="users"
         title="Leads"
         action={
-          <button className="btn-primary" onClick={() => setCreating(true)}>
-            <Icon name="plus" size={15} strokeWidth={2.2} />
-            New lead
-          </button>
+          canCreate && (
+            <button className="btn-primary" onClick={() => setCreating(true)}>
+              <Icon name="plus" size={15} strokeWidth={2.2} />
+              New lead
+            </button>
+          )
         }
       />
       <LeadsToolbar params={params} update={update} view={view} onView={setView} />
@@ -60,7 +65,8 @@ export function Leads() {
         ) : query.data && query.data.data.length === 0 ? (
           <EmptyState
             hasFilters={hasFilters}
-            onClear={() => update({ search: "", status: [], source: "", follow_up: "" }, { resetPage: true })}
+            canCreate={canCreate}
+            onClear={() => update({ search: "", status: [], source: "", follow_up: "", stale: "" }, { resetPage: true })}
             onCreate={() => setCreating(true)}
           />
         ) : (
@@ -120,10 +126,12 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
 
 function EmptyState({
   hasFilters,
+  canCreate,
   onClear,
   onCreate,
 }: {
   hasFilters: boolean;
+  canCreate: boolean;
   onClear: () => void;
   onCreate: () => void;
 }) {
@@ -138,10 +146,12 @@ function EmptyState({
           Clear filters
         </button>
       ) : (
-        <button className="btn-primary" onClick={onCreate}>
-          <Icon name="plus" size={15} strokeWidth={2.2} />
-          New lead
-        </button>
+        canCreate && (
+          <button className="btn-primary" onClick={onCreate}>
+            <Icon name="plus" size={15} strokeWidth={2.2} />
+            New lead
+          </button>
+        )
       )}
     </div>
   );

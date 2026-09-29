@@ -52,8 +52,8 @@ export function Dashboard() {
           <div className="mt-8 text-sm text-gray-400">Loading…</div>
         ) : (
           <>
-            {/* Follow-up alert cards */}
-            <div className="mt-6 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+            {/* Follow-up + stale alert cards */}
+            <div className="mt-6 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
               <AlertCard
                 to="/leads?follow_up=overdue"
                 border="#FECACA"
@@ -61,6 +61,7 @@ export function Dashboard() {
                 iconBg="#FEE2E2"
                 iconStroke="#DC2626"
                 labelColor="#B91C1C"
+                icon="clock"
                 label="Overdue follow-ups"
                 value={stats.follow_ups.overdue}
               />
@@ -71,8 +72,20 @@ export function Dashboard() {
                 iconBg="#FEF3C7"
                 iconStroke="#D97706"
                 labelColor="#B45309"
+                icon="clock"
                 label="Due today"
                 value={stats.follow_ups.today}
+              />
+              <AlertCard
+                to="/leads?stale=true"
+                border="#E5E7EB"
+                bg="#F9FAFB"
+                iconBg="#F3F4F6"
+                iconStroke="#6B7280"
+                labelColor="#374151"
+                icon="alert"
+                label="Stale leads"
+                value={stats.stale}
               />
             </div>
 
@@ -131,6 +144,7 @@ function AlertCard({
   iconBg,
   iconStroke,
   labelColor,
+  icon,
   label,
   value,
 }: {
@@ -140,6 +154,7 @@ function AlertCard({
   iconBg: string;
   iconStroke: string;
   labelColor: string;
+  icon: "clock" | "alert";
   label: string;
   value: number;
 }) {
@@ -152,7 +167,7 @@ function AlertCard({
         className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-[9px]"
         style={{ background: iconBg }}
       >
-        <Icon name="clock" size={18} stroke={iconStroke} />
+        <Icon name={icon} size={18} stroke={iconStroke} />
       </span>
       <div className="flex-1">
         <div className="text-xs font-medium" style={{ color: labelColor }}>

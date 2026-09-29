@@ -141,6 +141,19 @@ export function LeadsToolbar({
           />
         )}
       </Popover>
+
+      {/* Stale toggle */}
+      <button
+        onClick={() => update({ stale: params.stale ? "" : "true" }, { resetPage: true })}
+        className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[13px] font-medium ${
+          params.stale
+            ? "border-brand bg-brand-light text-brand"
+            : "border-line bg-white text-gray-700 hover:bg-[#FAFAFB]"
+        }`}
+      >
+        <Icon name="alert" size={14} />
+        Stale
+      </button>
     </div>
   );
 }

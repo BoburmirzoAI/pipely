@@ -10,6 +10,8 @@ export interface LeadParamPatch {
   status?: LeadStatus[];
   source?: LeadSource | "";
   follow_up?: FollowUp | "";
+  stale?: "true" | "";
+  owner?: number | "";
   ordering?: string;
   page?: number;
   page_size?: number;
@@ -24,6 +26,8 @@ export function useLeadParams() {
     status: (sp.getAll("status") as LeadStatus[]) ?? [],
     source: (sp.get("source") as LeadSource) || undefined,
     follow_up: (sp.get("follow_up") as FollowUp) || undefined,
+    stale: sp.get("stale") === "true" ? true : undefined,
+    owner: sp.get("owner") ? Number(sp.get("owner")) : undefined,
     ordering: sp.get("ordering") || undefined,
     page: sp.get("page") ? Number(sp.get("page")) : 1,
     page_size: sp.get("page_size") ? Number(sp.get("page_size")) : 20,

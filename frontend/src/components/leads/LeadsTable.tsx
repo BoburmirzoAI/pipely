@@ -2,6 +2,7 @@ import { Icon } from "../Icon";
 import { Avatar } from "../Avatar";
 import { StatusBadge } from "../StatusBadge";
 import { FollowUpCell } from "./FollowUpCell";
+import { StaleBadge } from "./StaleBadge";
 import { formatRelative } from "../../lib/format";
 import { SOURCE_META } from "../../lib/leadMeta";
 import type { Lead } from "../../lib/types";
@@ -83,7 +84,10 @@ export function LeadsTable({
                 </span>
               </td>
               <td className="px-3.5 py-2.5">
-                <StatusBadge status={lead.status} />
+                <span className="inline-flex items-center gap-1.5">
+                  <StatusBadge status={lead.status} />
+                  {lead.is_stale && <StaleBadge />}
+                </span>
               </td>
               <td className="px-3.5 py-2.5">
                 <FollowUpCell lead={lead} />
