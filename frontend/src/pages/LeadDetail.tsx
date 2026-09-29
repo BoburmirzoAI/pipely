@@ -9,6 +9,7 @@ import { AssignSelect } from "../components/leads/AssignSelect";
 import { DeleteDialog } from "../components/leads/DeleteDialog";
 import { LeadFormModal } from "../components/leads/LeadFormModal";
 import { StatusSelect } from "../components/leads/StatusSelect";
+import { useToast } from "../components/Toast";
 import { usePermissions } from "../hooks/usePermissions";
 import { StatusBadge } from "../components/StatusBadge";
 import { describeActivity } from "../lib/activity";
@@ -23,6 +24,7 @@ export function LeadDetail() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { has } = usePermissions();
+  const toast = useToast();
 
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -44,7 +46,9 @@ export function LeadDetail() {
       queryClient.invalidateQueries({ queryKey: ["activities", leadId] });
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       queryClient.invalidateQueries({ queryKey: ["stats"] });
+      toast.show("Status updated");
     },
+    onError: (err) => toast.show(apiError(err).message, "error"),
   });
 
   const deleteMutation = useMutation({
@@ -52,8 +56,10 @@ export function LeadDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       queryClient.invalidateQueries({ queryKey: ["stats"] });
+      toast.show("Lead deleted");
       navigate("/leads");
     },
+    onError: (err) => toast.show(apiError(err).message, "error"),
   });
 
   const assignMutation = useMutation({
@@ -62,7 +68,9 @@ export function LeadDetail() {
       queryClient.invalidateQueries({ queryKey: ["lead", leadId] });
       queryClient.invalidateQueries({ queryKey: ["activities", leadId] });
       queryClient.invalidateQueries({ queryKey: ["leads"] });
+      toast.show("Lead reassigned");
     },
+    onError: (err) => toast.show(apiError(err).message, "error"),
   });
 
   if (leadQuery.isLoading) {

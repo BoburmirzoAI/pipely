@@ -12,6 +12,7 @@ import type { Lead, LeadSource } from "../../lib/types";
 import { Icon } from "../Icon";
 import { Modal } from "../Modal";
 import { Popover } from "../Popover";
+import { useToast } from "../Toast";
 
 interface Props {
   lead?: Lead; // present => edit mode
@@ -22,6 +23,7 @@ interface Props {
 export function LeadFormModal({ lead, onClose, onSaved }: Props) {
   const editing = Boolean(lead);
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const [name, setName] = useState(lead?.name ?? "");
   const [email, setEmail] = useState(lead?.email ?? "");
@@ -70,6 +72,7 @@ export function LeadFormModal({ lead, onClose, onSaved }: Props) {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       queryClient.invalidateQueries({ queryKey: ["stats"] });
       queryClient.invalidateQueries({ queryKey: ["lead", saved.id] });
+      toast.show(editing ? "Lead updated" : "Lead created");
       onSaved(saved);
     },
     onError: (err) => {

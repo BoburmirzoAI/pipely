@@ -3,11 +3,13 @@ import { useState } from "react";
 
 import type { LeadListParams } from "../../api/leads";
 import { leadsApi } from "../../api/leads";
+import { apiError } from "../../lib/errors";
 import { formatFollowUp, formatRelative } from "../../lib/format";
 import { SOURCE_META, STATUS_META, STATUS_ORDER } from "../../lib/leadMeta";
 import type { Lead, LeadStatus } from "../../lib/types";
 import { Avatar } from "../Avatar";
 import { Icon } from "../Icon";
+import { useToast } from "../Toast";
 import { StaleBadge } from "./StaleBadge";
 
 export function LeadsBoard({
@@ -18,6 +20,7 @@ export function LeadsBoard({
   onCard: (id: number) => void;
 }) {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const [dragOver, setDragOver] = useState<LeadStatus | null>(null);
 
   const query = useQuery({
@@ -31,7 +34,9 @@ export function LeadsBoard({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       queryClient.invalidateQueries({ queryKey: ["stats"] });
+      toast.show("Status updated");
     },
+    onError: (err) => toast.show(apiError(err).message, "error"),
   });
 
   if (query.isLoading) {
