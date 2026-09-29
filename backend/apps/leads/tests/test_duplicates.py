@@ -27,7 +27,9 @@ class LeadDuplicateTests(LeadAPITestCase):
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(resp.data["error"]["details"]["field"], "email")
 
-    def test_same_email_for_different_owner_is_allowed(self):
+    def test_duplicate_email_across_owners_is_409(self):
+        # Duplicates are company-wide: the same email under a different owner
+        # still conflicts.
         other = self.make_user("other")
         Lead.objects.create(owner=other, name="Theirs", email="shared@example.com")
         resp = self.client.post(
@@ -35,4 +37,5 @@ class LeadDuplicateTests(LeadAPITestCase):
             {"name": "Mine", "email": "shared@example.com"},
             format="json",
         )
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(resp.data["error"]["details"]["field"], "email")

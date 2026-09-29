@@ -29,7 +29,7 @@ class LeadCheckDuplicateView(APIView):
         email = request.GET.get("email", "").strip()
         phone = normalize_phone(request.GET.get("phone", ""))
 
-        lead, field = duplicates.find_duplicate(request.user, email=email, phone=phone)
+        lead, field = duplicates.find_duplicate(email=email, phone=phone)
         if lead:
             return Response(
                 {"duplicate": {"id": lead.id, "name": lead.name, "matched_on": field}}

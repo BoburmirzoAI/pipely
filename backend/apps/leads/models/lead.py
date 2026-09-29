@@ -91,18 +91,17 @@ class Lead(TimeStampedModel):
                 condition=~models.Q(email="") | ~models.Q(phone=""),
                 name="lead_email_or_phone_required",
             ),
-            # No duplicate phone per owner (only when a phone is set).
+            # No duplicate phone company-wide (only when a phone is set).
             models.UniqueConstraint(
-                fields=["owner", "phone"],
+                fields=["phone"],
                 condition=~models.Q(phone=""),
-                name="uniq_owner_phone",
+                name="uniq_phone",
             ),
-            # No duplicate email per owner, case-insensitive (only when set).
+            # No duplicate email company-wide, case-insensitive (only when set).
             models.UniqueConstraint(
-                "owner",
                 Lower("email"),
                 condition=~models.Q(email=""),
-                name="uniq_owner_email_ci",
+                name="uniq_email_ci",
             ),
         ]
 

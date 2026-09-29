@@ -1,15 +1,18 @@
-"""Duplicate lead detection, scoped to a single owner."""
+"""Company-wide duplicate lead detection."""
 
 from apps.leads.models import Lead
 
 
-def find_duplicate(owner, email="", phone="", exclude_id=None):
-    """Return (lead, matched_field) if another of the owner's leads matches.
+def find_duplicate(email="", phone="", exclude_id=None):
+    """Return (lead, matched_field) if any lead matches, company-wide.
 
     Phone is compared exactly (values are stored normalized); email is compared
     case-insensitively. Phone is checked first. Returns (None, None) if none.
+
+    Note: scope-aware hiding of the matched lead's id/name (for a duplicate
+    outside the requester's data scope) is layered on in Phase C.
     """
-    qs = Lead.objects.filter(owner=owner)
+    qs = Lead.objects.all()
     if exclude_id is not None:
         qs = qs.exclude(id=exclude_id)
 

@@ -8,17 +8,16 @@ friendly 409 (DuplicateLead).
 from django.db import IntegrityError, transaction
 
 from apps.core.exceptions import DuplicateLead
-from apps.leads.models import Lead, LeadStatus
+from apps.leads.models import Lead
+from apps.leads.rules import CLOSED_STATUSES
 
 from . import activity, duplicates
 
-CLOSED_STATUSES = {LeadStatus.WON.value, LeadStatus.LOST.value}
 
-
-def _raise_if_duplicate(owner, email, phone, exclude_id=None):
+def _raise_if_duplicate(email, phone, exclude_id=None):
     """Called after an IntegrityError to translate it into a 409, or re-raise."""
     lead, field = duplicates.find_duplicate(
-        owner, email=email, phone=phone, exclude_id=exclude_id
+        email=email, phone=phone, exclude_id=exclude_id
     )
     if lead:
         raise DuplicateLead(field, lead)
@@ -32,7 +31,7 @@ def create_lead(owner, data):
             lead = Lead.objects.create(owner=owner, **data)
             activity.log_created(lead, owner)
     except IntegrityError:
-        _raise_if_duplicate(owner, email, phone)
+        _raise_if_duplicate(email, phone)
     return lead
 
 
@@ -55,7 +54,7 @@ def update_lead(lead, user, data):
                 activity.log_field_change(lead, user, field, old_value, new_value)
     except IntegrityError:
         _raise_if_duplicate(
-            lead.owner, data.get("email", ""), data.get("phone", ""), exclude_id=lead.id
+            data.get("email", ""), data.get("phone", ""), exclude_id=lead.id
         )
     return lead
 

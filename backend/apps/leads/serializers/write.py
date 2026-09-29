@@ -56,11 +56,10 @@ class LeadWriteSerializer(serializers.Serializer):
                 {"non_field_errors": ["Provide at least one of email or phone."]}
             )
 
-        # Friendly duplicate check (per owner). The DB constraint is the net.
-        owner = self.context["request"].user
+        # Friendly duplicate check (company-wide). The DB constraint is the net.
         exclude_id = self.instance.id if self.instance is not None else None
         lead, field = duplicates.find_duplicate(
-            owner, email=email, phone=phone, exclude_id=exclude_id
+            email=email, phone=phone, exclude_id=exclude_id
         )
         if lead:
             raise DuplicateLead(field, lead)
