@@ -1,42 +1,25 @@
-from datetime import timedelta
-
 from django.conf import settings
 from django.db import models
 from django.db.models.functions import Lower
 from django.utils import timezone
 
 from apps.core.models import TimeStampedModel
+from apps.leads.rules import CLOSED_STATUSES, stale_cutoff
 
-
-class LeadSource(models.TextChoices):
-    WEBSITE = "website", "Website"
-    INSTAGRAM = "instagram", "Instagram"
-    TELEGRAM = "telegram", "Telegram"
-    REFERRAL = "referral", "Referral"
-    OTHER = "other", "Other"
-
-
-class LeadStatus(models.TextChoices):
-    NEW = "new", "New"
-    CONTACTED = "contacted", "Contacted"
-    QUALIFIED = "qualified", "Qualified"
-    WON = "won", "Won"
-    LOST = "lost", "Lost"
+from .choices import LeadSource, LeadStatus
 
 
 class LeadQuerySet(models.QuerySet):
     """Reusable, chainable lead-state filters.
 
-    Every lead-state rule (open, overdue, due today, ...) and the data scope
-    live here in one place, so filters, stats and views all share the exact
-    same definition and can never drift apart.
+    Every lead-state rule (open, overdue, stale, ...) and the data scope live
+    here in one place; the Lead properties reuse the same rules (apps/leads/
+    rules.py), so filters, stats and the serialized flags never drift apart.
     """
-
-    CLOSED_STATUSES = [LeadStatus.WON, LeadStatus.LOST]
 
     def open(self):
         """Leads that are still in play (not won/lost)."""
-        return self.exclude(status__in=self.CLOSED_STATUSES)
+        return self.exclude(status__in=CLOSED_STATUSES)
 
     def overdue(self):
         """Open leads whose follow-up is already in the past."""
@@ -57,10 +40,9 @@ class LeadQuerySet(models.QuerySet):
         stale. Any save bumps updated_at and drops the lead out of this set.
         """
         now = timezone.now()
-        threshold = now - timedelta(days=settings.STALE_LEAD_DAYS)
         return (
             self.open()
-            .filter(updated_at__lt=threshold)
+            .filter(updated_at__lt=stale_cutoff())
             .filter(
                 models.Q(next_follow_up_at__isnull=True)
                 | models.Q(next_follow_up_at__lt=now)
@@ -129,11 +111,11 @@ class Lead(TimeStampedModel):
 
     @property
     def is_overdue(self) -> bool:
-        """Follow-up is in the past and the lead is still open."""
-        if not self.next_follow_up_at or self.status in {
-            LeadStatus.WON,
-            LeadStatus.LOST,
-        }:
+        """Follow-up is in the past and the lead is still open.
+
+        Mirror of LeadQuerySet.overdue() for a single loaded row.
+        """
+        if not self.next_follow_up_at or self.status in CLOSED_STATUSES:
             return False
         return self.next_follow_up_at < timezone.now()
 
@@ -151,11 +133,10 @@ class Lead(TimeStampedModel):
         Reads only fields already on the instance (no extra query), so it is
         safe on create/update responses where the object isn't from a queryset.
         """
-        if self.status in {LeadStatus.WON, LeadStatus.LOST}:
+        if self.status in CLOSED_STATUSES:
             return False
-        now = timezone.now()
-        if self.updated_at >= now - timedelta(days=settings.STALE_LEAD_DAYS):
+        if self.updated_at >= stale_cutoff():
             return False
-        if self.next_follow_up_at and self.next_follow_up_at >= now:
+        if self.next_follow_up_at and self.next_follow_up_at >= timezone.now():
             return False
         return True
