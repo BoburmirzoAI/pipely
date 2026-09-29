@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { leadsApi } from "../api/leads";
 import { Icon } from "../components/Icon";
 import { PageHeader } from "../components/PageHeader";
+import { LeadFormModal } from "../components/leads/LeadFormModal";
 import { LeadsTable } from "../components/leads/LeadsTable";
 import { LeadsToolbar } from "../components/leads/LeadsToolbar";
 import { Pagination } from "../components/leads/Pagination";
@@ -17,6 +18,7 @@ export function Leads() {
   const { params, update } = useLeadParams();
   const navigate = useNavigate();
   const [view, setView] = useState<View>("table");
+  const [creating, setCreating] = useState(false);
 
   const query = useQuery({
     queryKey: ["leads", params],
@@ -39,7 +41,7 @@ export function Leads() {
         icon="users"
         title="Leads"
         action={
-          <button className="btn-primary" onClick={() => navigate("/leads/new")}>
+          <button className="btn-primary" onClick={() => setCreating(true)}>
             <Icon name="plus" size={15} strokeWidth={2.2} />
             New lead
           </button>
@@ -58,7 +60,7 @@ export function Leads() {
           <EmptyState
             hasFilters={hasFilters}
             onClear={() => update({ search: "", status: [], source: "", follow_up: "" }, { resetPage: true })}
-            onCreate={() => navigate("/leads/new")}
+            onCreate={() => setCreating(true)}
           />
         ) : (
           <LeadsTable
@@ -78,6 +80,16 @@ export function Leads() {
           totalPages={query.data.meta.total_pages}
           onPage={(n) => update({ page: n })}
           onPageSize={(n) => update({ page_size: n }, { resetPage: true })}
+        />
+      )}
+
+      {creating && (
+        <LeadFormModal
+          onClose={() => setCreating(false)}
+          onSaved={(lead) => {
+            setCreating(false);
+            navigate(`/leads/${lead.id}`);
+          }}
         />
       )}
     </div>
