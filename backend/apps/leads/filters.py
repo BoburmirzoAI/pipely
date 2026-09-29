@@ -1,5 +1,4 @@
 import django_filters
-from django.utils import timezone
 
 from apps.leads.models import Lead, LeadSource, LeadStatus
 
@@ -21,16 +20,13 @@ class LeadFilter(django_filters.FilterSet):
         fields = ["status", "source"]
 
     def filter_follow_up(self, queryset, name, value):
-        now = timezone.now()
-        today = timezone.localdate()
-        closed = [LeadStatus.WON, LeadStatus.LOST]
-
+        # Delegate to the LeadQuerySet so the rules live in exactly one place.
         if value == "overdue":
-            return queryset.filter(next_follow_up_at__lt=now).exclude(status__in=closed)
+            return queryset.overdue()
         if value == "today":
-            return queryset.filter(next_follow_up_at__date=today)
+            return queryset.due_today()
         if value == "upcoming":
-            return queryset.filter(next_follow_up_at__date__gt=today)
+            return queryset.upcoming()
         if value == "none":
             return queryset.filter(next_follow_up_at__isnull=True)
         return queryset

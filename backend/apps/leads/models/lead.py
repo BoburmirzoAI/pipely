@@ -22,6 +22,37 @@ class LeadStatus(models.TextChoices):
     LOST = "lost", "Lost"
 
 
+class LeadQuerySet(models.QuerySet):
+    """Reusable, chainable lead-state filters.
+
+    Every lead-state rule (open, overdue, due today, ...) and the data scope
+    live here in one place, so filters, stats and views all share the exact
+    same definition and can never drift apart.
+    """
+
+    CLOSED_STATUSES = [LeadStatus.WON, LeadStatus.LOST]
+
+    def open(self):
+        """Leads that are still in play (not won/lost)."""
+        return self.exclude(status__in=self.CLOSED_STATUSES)
+
+    def overdue(self):
+        """Open leads whose follow-up is already in the past."""
+        return self.open().filter(next_follow_up_at__lt=timezone.now())
+
+    def due_today(self):
+        """Follow-up falls on today's date (server timezone)."""
+        return self.filter(next_follow_up_at__date=timezone.localdate())
+
+    def upcoming(self):
+        """Follow-up is after today."""
+        return self.filter(next_follow_up_at__date__gt=timezone.localdate())
+
+    def visible_to(self, user):
+        """Data scope. Phase B: owner-only; extended with leads.view_all in Phase C."""
+        return self.filter(owner=user)
+
+
 class Lead(TimeStampedModel):
     name = models.CharField(max_length=255)
     email = models.EmailField(blank=True)
@@ -40,6 +71,8 @@ class Lead(TimeStampedModel):
         on_delete=models.CASCADE,
         related_name="leads",
     )
+
+    objects = LeadQuerySet.as_manager()
 
     class Meta:
         ordering = ["-created_at"]

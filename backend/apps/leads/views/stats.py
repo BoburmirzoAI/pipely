@@ -1,5 +1,4 @@
 from django.db.models import Count
-from django.utils import timezone
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
 from rest_framework.response import Response
@@ -23,7 +22,7 @@ class LeadStatsView(APIView):
         )
     )
     def get(self, request):
-        qs = Lead.objects.filter(owner=request.user)
+        qs = Lead.objects.visible_to(request.user)
 
         by_status = {choice.value: 0 for choice in LeadStatus}
         for row in qs.values("status").annotate(count=Count("id")):
@@ -33,15 +32,10 @@ class LeadStatsView(APIView):
         won, lost = by_status["won"], by_status["lost"]
         conversion_rate = round(won / (won + lost), 2) if (won + lost) else None
 
-        now = timezone.now()
-        today = timezone.localdate()
-        closed = [LeadStatus.WON, LeadStatus.LOST]
         follow_ups = {
-            "overdue": qs.filter(next_follow_up_at__lt=now)
-            .exclude(status__in=closed)
-            .count(),
-            "today": qs.filter(next_follow_up_at__date=today).count(),
-            "upcoming": qs.filter(next_follow_up_at__date__gt=today).count(),
+            "overdue": qs.overdue().count(),
+            "today": qs.due_today().count(),
+            "upcoming": qs.upcoming().count(),
         }
 
         return Response(
