@@ -16,4 +16,16 @@ export const authApi = {
   me() {
     return api.get<User>("/auth/me/").then((r) => r.data);
   },
+  updateProfile(data: {
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+  }) {
+    return api.patch<User>("/auth/me/", data).then((r) => r.data);
+  },
+  changePassword(data: { current_password: string; new_password: string }) {
+    return api
+      .post<{ detail: string }>("/auth/change-password/", data)
+      .then((r) => r.data);
+  },
 };

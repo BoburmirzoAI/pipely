@@ -22,6 +22,7 @@ interface AuthState {
     password: string,
   ) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -67,8 +68,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setStatus("anon");
   }
 
+  async function refreshUser() {
+    setUser(await authApi.me());
+  }
+
   return (
-    <AuthContext.Provider value={{ user, status, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, status, login, register, logout, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

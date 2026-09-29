@@ -8,6 +8,7 @@ import { LeadDetail } from "./pages/LeadDetail";
 import { Leads } from "./pages/Leads";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
+import { Settings } from "./pages/Settings";
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/leads" element={<Leads />} />
           <Route path="/leads/:id" element={<LeadDetail />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
         <Route path="*" element={<Navigate to="/leads" replace />} />
       </Routes>

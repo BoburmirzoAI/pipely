@@ -57,13 +57,21 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       <div className="mt-auto flex items-center gap-2.5 border-t border-line px-1.5 pb-1 pt-2.5">
-        <span className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full bg-brand text-xs font-semibold text-white">
-          {initials(name || "U")}
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="truncate text-[12.5px] font-semibold text-ink">{name}</div>
-          <div className="text-[11.5px] text-gray-400">Admin</div>
-        </div>
+        <NavLink
+          to="/settings"
+          onClick={onNavigate}
+          className="flex min-w-0 flex-1 items-center gap-2.5 rounded-md p-1 hover:bg-[#F0F0F1]"
+        >
+          <span className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full bg-brand text-xs font-semibold text-white">
+            {initials(name || "U")}
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[12.5px] font-semibold text-ink">{name}</div>
+            <div className="truncate text-[11.5px] text-gray-400">
+              {user?.roles?.join(", ") || "—"}
+            </div>
+          </div>
+        </NavLink>
         <button
           onClick={logout}
           title="Log out"
