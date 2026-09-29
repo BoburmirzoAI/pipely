@@ -19,6 +19,14 @@ from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_exception_handler
 
 
+class Conflict(APIException):
+    """Generic 409 for safety-rule violations (e.g. deleting a role in use)."""
+
+    status_code = status.HTTP_409_CONFLICT
+    default_code = "conflict"
+    default_detail = "Conflict."
+
+
 class DuplicateLead(APIException):
     """409 raised when a lead with the same email/phone already exists (per owner)."""
 

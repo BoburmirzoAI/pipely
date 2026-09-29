@@ -24,8 +24,8 @@ class UserSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
-    def get_roles(self, obj):
+    def get_roles(self, obj) -> list[str]:
         return [role.name for role in obj.roles.all()]
 
-    def get_permissions(self, obj):
+    def get_permissions(self, obj) -> list[str]:
         return sorted(obj.get_permission_codes())

@@ -12,6 +12,7 @@ urlpatterns = [
     # API endpoints (versioned under /api/v1/)
     path("api/v1/auth/", include("apps.users.urls")),
     path("api/v1/leads/", include("apps.leads.urls")),
+    path("api/v1/", include("apps.users.urls.management")),
     # OpenAPI schema + Swagger UI:
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
