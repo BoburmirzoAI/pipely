@@ -1,7 +1,7 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from apps.users.models import User
+from apps.users.models import Role, User
 
 
 class RegisterSerializer(serializers.Serializer):
@@ -35,4 +35,9 @@ class RegisterSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         # create_user hashes the password (never stored in plain text).
-        return User.objects.create_user(**validated_data)
+        user = User.objects.create_user(**validated_data)
+        # New users get the Sales role by default.
+        sales = Role.objects.filter(name="Sales").first()
+        if sales:
+            user.roles.add(sales)
+        return user
