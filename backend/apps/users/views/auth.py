@@ -5,7 +5,11 @@ from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from apps.users.serializers import RegisterSerializer, UserSerializer
+from apps.users.serializers import (
+    ProfileSerializer,
+    RegisterSerializer,
+    UserSerializer,
+)
 
 
 class LoginView(TokenObtainPairView):
@@ -41,3 +45,12 @@ class MeView(APIView):
     @extend_schema(responses={200: UserSerializer})
     def get(self, request):
         return Response(UserSerializer(request.user).data)
+
+    @extend_schema(request=ProfileSerializer, responses={200: UserSerializer})
+    def patch(self, request):
+        serializer = ProfileSerializer(
+            instance=request.user, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response(UserSerializer(user).data)
