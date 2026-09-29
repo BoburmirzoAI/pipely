@@ -87,7 +87,7 @@ class Lead(TimeStampedModel):
     next_follow_up_at = models.DateTimeField(null=True, blank=True)
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="leads",
     )
 
@@ -100,6 +100,7 @@ class Lead(TimeStampedModel):
             models.Index(fields=["created_at"]),
             models.Index(fields=["updated_at"]),
             models.Index(fields=["next_follow_up_at"]),
+            models.Index(fields=["owner"]),
         ]
         constraints = [
             # At least one of email or phone must be provided (defense in depth;
