@@ -9,6 +9,7 @@ class LeadActivity(models.Model):
         CREATED = "created", "Created"
         UPDATED = "updated", "Updated"
         STATUS_CHANGED = "status_changed", "Status changed"
+        ASSIGNED = "assigned", "Assigned"
 
     lead = models.ForeignKey(
         "leads.Lead", on_delete=models.CASCADE, related_name="activities"
