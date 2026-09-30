@@ -38,6 +38,7 @@ frontend/.vite/
 !README.md
 !ARCHITECTURE.md
 !AI_USAGE.md
+!docs/CLAUDE.md
 
 # ---- Misc project files (kept out of source control) ----
 Design decisions pending.zip
